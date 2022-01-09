@@ -16,22 +16,24 @@ In order to test it out you need to do the following:
    ```
    cargo +nightly contract build --manifest-path=examples/flipper/Cargo.toml
    ```
+
    You will receive the respective `flipper.contract` bundle in the `examples/flipper/target/ink/` folder.
-1. Build the proxy contract:
+2. Build the proxy contract:
    ```
    cargo +nightly contract build --manifest-path=examples/proxy/Cargo.toml
    ```
+
    You will receive the respective `proxy.contract` bundle in the `examples/proxy/target/ink/` folder.
-1. Upload the `flipper.contract` to the chain.
-1. Upload the `proxy.contract` to the chain. During instantiation specify the just instantiated
+3. Upload the `flipper.contract` to the chain.
+4. Upload the `proxy.contract` to the chain. During instantiation specify the just instantiated
    `flipper` contract as the `forward_to` parameter.
-1. Switch the metadata of the just instantiated `proxy` contract to the metadata of the `flipper`
+5. Switch the metadata of the just instantiated `proxy` contract to the metadata of the `flipper`
    contract. In the `polkadot-js` UI this can be done this way:
    1. Click the icon left of the instantiated `proxy` contract to copy the address
       of it into your clipboard.
-   1. Click `Add an existing contract`, insert the just copied address, upload the `flipper.contract`
+   2. Click `Add an existing contract`, insert the just copied address, upload the `flipper.contract`
       for the `Contract ABI`.
-1. Now you are able to run the operations provided by the `flipper` smart contract via
+6. Now you are able to run the operations provided by the `flipper` smart contract via
    the `proxy` contract.
 
 To change the address of the smart contract where calls are forwarded to you would

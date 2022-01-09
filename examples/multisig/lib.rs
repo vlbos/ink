@@ -560,6 +560,108 @@ mod multisig {
             result
         }
 
+        /// Evaluate a confirmed execution and return its output as bytes.
+        ///
+        /// Its return value indicates whether the called transaction was successful and contains
+        /// its output when successful.
+        /// This can be called by anyone.
+        #[ink(message, payable)]
+        pub fn evalu_transaction(
+            &mut self,
+            transaction: Transaction,
+ to: AccountId,
+value: Balance,
+        ) -> Result<(), Error> {
+            let t = transaction;
+            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+                .callee(t.callee)
+                .gas_limit(t.gas_limit)
+                .transferred_value(t.transferred_value)
+                .exec_input(
+                    ExecutionInput::new(t.selector.into())
+                            .push_arg(to)
+                            .push_arg(value),
+                )
+                .returns::<()>()
+                .fire()
+                .map_err(|_| Error::TransactionFailed);
+              result
+        }
+
+ /// Evaluate a confirmed execution and return its output as bytes.
+        ///
+        /// Its return value indicates whether the called transaction was successful and contains
+        /// its output when successful.
+        /// This can be called by anyone.
+        #[ink(message, payable)]
+        pub fn evalua_transaction(
+            &mut self,
+            transactions: Vec<Transaction>,
+ froms: Vec<AccountId>,
+ toes: Vec<AccountId>,
+values: Vec<Balance>,
+        ) -> Result<(), Error> {
+ let message = ink_prelude::format!("got a call from froms={:?},toes={:?},values={:?}", froms,toes,values);
+   ink_env::debug_println!("{:?}",&message);
+            for (i,t) in transactions.iter().enumerate(){
+ let message = ink_prelude::format!("got a call from input={:?},selector={:?},callee={:?},froms={:?},toes={:?},values={:?}",t.input, t.selector,t.callee,froms,toes,values);
+   ink_env::debug_println!("{:?}",&message);
+            let _ = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+                .callee(t.callee)
+                .gas_limit(t.gas_limit)
+                .transferred_value(t.transferred_value)
+                .exec_input(
+                    ExecutionInput::new(t.selector.into())
+                            .push_arg(froms[i])
+                            .push_arg(toes[i])
+                            .push_arg(values[i]),
+                )
+                .returns::<()>()
+                .fire()
+                .map_err(|_| Error::TransactionFailed);
+                }
+              Ok(())
+        }
+
+/// Evaluate a confirmed execution and return its output as bytes.
+        ///
+        /// Its return value indicates whether the called transaction was successful and contains
+        /// its output when successful.
+        /// This can be called by anyone.
+        #[ink(message, payable)]
+        pub fn atomic_transaction(
+            &mut self,
+            selector: [u8; 4],
+callees: Vec<AccountId>,
+ from:AccountId,
+ to: AccountId,
+values: Vec<Balance>,
+        ) -> Result<(), Error> {
+            let t = Transaction {
+         callee: AccountId::default(),
+        selector:[0x0;4],
+         input: Vec::new(),
+         transferred_value: Balance::default(),
+         gas_limit: 0,
+    };
+            for (i,&callee) in callees.iter().enumerate(){
+            let _ = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+                .callee(callee)
+                .gas_limit(t.gas_limit)
+                .transferred_value(t.transferred_value)
+                .exec_input(
+                    ExecutionInput::new(selector.into())
+                            .push_arg(from)
+                            .push_arg(to)
+                            .push_arg(values[i]),
+                )
+                .returns::<()>()
+                .fire()
+                .map_err(|_| Error::TransactionFailed);
+                }
+              Ok(())
+        }
+
         /// Set the `transaction` as confirmed by `confirmer`.
         /// Idempotent operation regarding an already confirmed `transaction`
         /// by `confirmer`.
@@ -703,6 +805,7 @@ mod multisig {
                     gas_limit: 1000000,
                 }
             }
+
         }
 
         fn set_sender(sender: AccountId) {
@@ -751,6 +854,20 @@ mod multisig {
             assert_eq!(transaction, Transaction::change_requirement(1));
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
+            contract
+        }
+
+        fn evalua_transaction() -> Multisig {
+            let mut contract = build_contract();
+            let accounts = default_accounts();
+            set_from_owner();
+ let froms = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
+ let toes = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
+let txes = ink_prelude::vec![Transaction::change_requirement(1), Transaction::change_requirement(1), Transaction::change_requirement(1)];
+let values = ink_prelude::vec![1, 1, 1];
+
+            let _ = contract.evalua_transaction(txes,froms,toes,values);
+           
             contract
         }
 
@@ -921,6 +1038,11 @@ mod multisig {
         #[ink::test]
         fn submit_transaction_works() {
             submit_transaction();
+        }
+
+        #[ink::test]
+        fn evalua_transaction_works() {
+            evalua_transaction();
         }
 
         #[ink::test]

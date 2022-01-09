@@ -26,12 +26,12 @@ build() {
     cargo contract build
     result_wasm=$?
     let "all_checks_passed |= $result_wasm"
-    if [ $result_wasm -eq 0 ]
-    then
-        results_wasm[$example]="ok"
-    else
-        results_wasm[$example]="ERROR"
-    fi
+    # if [ $result_wasm -eq 0 ]
+    # then
+    #     results_wasm[$example]="ok"
+    # else
+    #     results_wasm[$example]="ERROR"
+    # fi
     popd
 }
 
@@ -69,20 +69,20 @@ metadata() {
     popd
 }
 
-for example in $(ls -d examples/*/ | grep -v delegator); do
-    build $example
-    run_tests $example
-    metadata $example
-done
+# for example in $(ls -d examples/*/ | grep -v delegator); do
+#     build $example
+#     # run_tests $example
+#     # metadata $example
+# done
 
 # the delegator is a special case, we need to build it's sub-contracts first
 for example in $(ls -d examples/delegator/{accumulator,adder,subber}/); do
     build $example
-    run_tests $example
+    # run_tests $example
 done
 build examples/delegator/
-run_tests examples/delegator/
-metadata examples/delegator/
+# run_tests examples/delegator/
+# metadata examples/delegator/
 
 banner="---------------"
 echo "Example Results"
